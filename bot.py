@@ -8,7 +8,7 @@ BOT_TOKEN = "8260023440:AAFBieaxbdSgdxeeJ48q_epB1EZ_G2HjWEQ"
 REMOVE_BG_API_KEY = "9t4eVTPnsEc8ncdJnwfPnM11"
 
 # Admin IDs (for notifications only)
-ADMIN_IDS = [123456789]  # <-- replace with your Telegram ID(s)
+ADMIN_IDS = [7982420411]  # <-- replace with your Telegram ID(s)
 # ------------------------------------------------
 
 # Start command
