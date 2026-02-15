@@ -1,36 +1,51 @@
-import os
+import io
 import requests
 from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
 BOT_TOKEN = "8260023440:AAFBieaxbdSgdxeeJ48q_epB1EZ_G2HjWEQ"
-REMOVE_BG_API = "9t4eVTPnsEc8ncdJnwfPnM11"
+REMOVE_BG_API_KEY = "9t4eVTPnsEc8ncdJnwfPnM11"
 
-async def remove_bg(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "Hello 👋\n\nSend me an image and I will remove its background."
+    )
+
+async def remove_background(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Processing your image... ⏳")
+
     photo = update.message.photo[-1]
-    file = await context.bot.get_file(photo.file_id)
-    photo_path = "input.jpg"
-    await file.download_to_drive(photo_path)
+    file = await photo.get_file()
+    image_bytes = await file.download_as_bytearray()
 
-    await update.message.reply_text("⏳ Processing...")
-
-    with open(photo_path, "rb") as img:
-        response = requests.post(
-            "https://api.remove.bg/v1.0/removebg",
-            files={"image_file": img},
-            data={"size": "auto"},
-            headers={"X-Api-Key": REMOVE_BG_API},
-        )
+    response = requests.post(
+        "https://api.remove.bg/v1.0/removebg",
+        files={"image_file": image_bytes},
+        data={"size": "auto"},
+        headers={"X-Api-Key": REMOVE_BG_API_KEY},
+    )
 
     if response.status_code == 200:
-        with open("output.png", "wb") as out:
-            out.write(response.content)
-        await update.message.reply_photo(photo=open("output.png", "rb"))
+        bio = io.BytesIO(response.content)
+        bio.name = "background_removed.png"
+
+        await update.message.reply_document(
+            document=bio,
+            filename="background_removed.png"
+        )
+
+        await update.message.reply_text("✅ Your image is ready!")
     else:
         await update.message.reply_text("❌ Error removing background.")
 
-app = ApplicationBuilder().token(BOT_TOKEN).build()
-app.add_handler(MessageHandler(filters.PHOTO, remove_bg))
+def main():
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-print("Bot Running...")
-app.run_polling()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.PHOTO, remove_background))
+
+    print("Bot is running...")
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
