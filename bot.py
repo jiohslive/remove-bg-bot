@@ -3,8 +3,8 @@ import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
-BOT_TOKEN = os.getenv("8260023440:AAFBieaxbdSgdxeeJ48q_epB1EZ_G2HjWEQ")
-REMOVE_BG_API = os.getenv("9t4eVTPnsEc8ncdJnwfPnM11")
+BOT_TOKEN = "8260023440:AAFBieaxbdSgdxeeJ48q_epB1EZ_G2HjWEQ"
+REMOVE_BG_API = "9t4eVTPnsEc8ncdJnwfPnM11"
 
 async def remove_bg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     photo = update.message.photo[-1]
